@@ -1,4 +1,0 @@
-AuthType Basic
-AuthName "Beaneditor admin"
-AuthUserFile /usr/home/aneditor.be/www/hannesm/.htpasswd
-Require valid-user
