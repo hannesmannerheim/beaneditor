@@ -24,7 +24,7 @@
  *  You should have received a copy of the GNU Affero General Public License  *
  *  along with Beaneditor. If not, see <http://www.gnu.org/licenses/>.        *
  *                                                                            * 
- *----------------------------------------------------------------------------*/   
+ *----------------------------------------------------------------------------*/ 
 
 // PARSER FOR BLAY.SE	
 
@@ -58,8 +58,10 @@ function parse_blay($url, $page_source) {
 	$h1 = $h1_tag->innertext;
 	
 	// get text body
-	$html->find("div.post",0)->find("div.footnotes",0)->style = 'font-size:14px;border-top:1px dashed gray;margin-top:30px;';
-	$html->find("div.post",0)->find("div.footnotes",0)->find("ol",0)->style = 'padding-left:20px;';	
+	if(count($html->find("div.post",0)->find("div.footnotes",0))>0) {
+		$html->find("div.post",0)->find("div.footnotes",0)->style = 'font-size:14px;border-top:1px dashed gray;margin-top:30px;';
+		$html->find("div.post",0)->find("div.footnotes",0)->find("ol",0)->style = 'padding-left:20px;';		
+		}
 	$html->find("div.post",0)->find("div.meta",0)->outertext = '';
 	$html->find("div.post",0)->find("h1",0)->outertext = '';	
 	$html->find("div.post",0)->find("div#disqus_thread",0)->outertext = '';		
