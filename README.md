@@ -22,27 +22,27 @@ Setup
 
 1. Create the MySQL tables. Beaneditor needs only two tables:
 
-	CREATE TABLE `content` (
-	  `id` int(10) unsigned NOT NULL auto_increment,
-	  `content` longtext collate utf8_unicode_ci NOT NULL,
-	  PRIMARY KEY  (`id`)
+	`CREATE TABLE 'content' (
+	  'id' int(10) unsigned NOT NULL auto_increment,
+	  'content' longtext collate utf8_unicode_ci NOT NULL,
+	  PRIMARY KEY  ('id')
 	) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 	
-	CREATE TABLE `objects` (
-	  `i` int(10) unsigned NOT NULL auto_increment,
-	  `id` int(10) unsigned NOT NULL,
-	  `time` decimal(12,2) unsigned NOT NULL,
-	  `type` varchar(2) collate utf8_unicode_ci NOT NULL,
-	  `parent` int(10) unsigned NOT NULL,
-	  `content` int(10) unsigned NOT NULL,
-	  `width` decimal(4,2) NOT NULL,
-	  `sort_order` int(10) unsigned NOT NULL,
-	  `published` tinyint(1) NOT NULL,
-	  `deleted` tinyint(1) NOT NULL,
-	  KEY `i` (`i`),
-	  KEY `id` (`id`),
-	  KEY `time` (`time`)
-	) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+	CREATE TABLE 'objects' (
+	  'i' int(10) unsigned NOT NULL auto_increment,
+	  'id' int(10) unsigned NOT NULL,
+	  'time' decimal(12,2) unsigned NOT NULL,
+	  'type' varchar(2) collate utf8_unicode_ci NOT NULL,
+	  'parent' int(10) unsigned NOT NULL,
+	  'content' int(10) unsigned NOT NULL,
+	  'width' decimal(4,2) NOT NULL,
+	  'sort_order' int(10) unsigned NOT NULL,
+	  'published' tinyint(1) NOT NULL,
+	  'deleted' tinyint(1) NOT NULL,
+	  KEY 'i' ('i'),
+	  KEY 'id' ('id'),
+	  KEY 'time' ('time')
+	) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`
 
 2. Create a MySQL user. Note, the user only needs SELECT and INSERT priviliges! 
 Beaneditor never use UPDATE or DELETE, so don't allow those actions. 
