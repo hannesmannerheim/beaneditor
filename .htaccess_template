@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /{user}/
+RewriteRule ^$ front/ [R]
+RewriteRule ^([0-9]+)$ $1/ [R]
+RewriteRule ^([0-9]+)/$ front/?$1 [NC]
+</IfModule>

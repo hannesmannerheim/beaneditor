@@ -1,0 +1,40 @@
+<?php
+
+// database settings
+$db_name = "be_{user}"; 
+$db_host = "localhost";
+$db_user = "be_{user}";
+$db_pass = "{pass}";
+
+// name of your beaneditor
+$name = '{name}';
+
+// default width
+$container_width = 1800;
+
+// date format see PHP:s date()-function for syntax
+$date_format = "d M Y";
+
+// days/months
+$days['Monday']    = 'måndag';
+$days['Tuesday']   = 'tisdag';
+$days['Wednesday'] = 'onsdag';
+$days['Thursday']  = 'torsdag';
+$days['Friday']    = 'fredag';
+$days['Saturday']  = 'lördag';
+$days['Sunday']    = 'söndag';
+$months['January'] = 'januari';
+$months['February'] = 'februari';
+$months['March']     = 'mars';
+$months['April']     = 'april';
+$months['May']       = 'maj';
+$months['June']      = 'juni';
+$months['July']      = 'juli';
+$months['August']    = 'augusti';
+$months['September'] = 'september';
+$months['October']   = 'oktober';
+$months['November']  = 'november';
+$months['December']  = 'december';
+
+
+?>
