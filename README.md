@@ -53,7 +53,7 @@ rename the files to settings.php and .htaccess
 4. If you want to password protect the adminstration pages, use .htpasswd and 
 put .htaccess files in the folders you want to protect, probably in:
    
-	./admin/
+	./admin/  
 	./admin/operations/
    
 
