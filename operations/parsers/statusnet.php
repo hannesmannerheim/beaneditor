@@ -26,32 +26,60 @@
  *                                                                            * 
  *----------------------------------------------------------------------------*/   
 
-// stuff
-error_reporting(E_ALL); ini_set('display_errors', '1');
-header("Content-type: text/plain; charset=utf-8");
-include "../settings.php";
-$db_link=mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error()); mysql_select_db($db_name, $db_link) or die(mysql_error()); mysql_query("SET CHARACTER SET 'utf8'");
+// PARSER FOR STATUSNET
 
-// read data and secure against sql-insert
-$widths_expl = explode(',',$_GET["widths"]);
-foreach($widths_expl as $object) {
-	$object_expl = explode('>',$object);
-	$obj_id = (int)$object_expl[0];
-	$new_obj_width = (float)$object_expl[1];
-	$time_now = microtime(true);	
+// (1) sites that we know for sure runs posterous
+$identify_by_domain = array(
+	'identi.ca',
+	'quitter.se',
+	'freesocial.org'
+	);
 
-	// read object data from db
-	$obj_t = mysql_query("SELECT s1.id, s1.type, s1.parent, s1.content, s1.sort_order FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.id = '$obj_id'");
-	$obj_type = mysql_result($obj_t,0,'type');
-	$obj_parent = mysql_result($obj_t,0,'parent');	
-	$obj_content = mysql_result($obj_t,0,'content');
-	$obj_sort_order = mysql_result($obj_t,0,'sort_order');		
+// (2) secondary regexp, for unmatched URL:s, we look for proof of posterous in html source
+$identify_by_source = array(
+	);
+
+
+
+// ---------------------------------------------------------------
+// ---------------------------------------------------------------
+
+// PARSER
+// 1. fetch page from URL
+// 2. print parsed HTML
+function parse_statusnet($url, $page_source) {
+	include "../settings.php";	
 	
-	// insert new updated row
-	mysql_query("INSERT INTO objects (id, time, type, parent, content, width, sort_order) VALUES ('$obj_id','$time_now','$obj_type','$obj_parent','$obj_content','$new_obj_width','$obj_sort_order')");
+	if(!stristr($url,'/notice/')) {
+		print 'not a valid notice URL, should contain "/notice/"';
+		}
+	else {
+
+		// get notice data from statusnet api
+		
+		$api_base = substr($url,0,strpos($url, '/notice'));
+		$notice_id = (int)substr($url,(strpos($url,'/notice/')+8));
+		$notice = json_decode(file_get_contents($api_base.'/api/statuses/show/'.$notice_id.'.json'));
+		$notice_timestamp = strtotime($notice->created_at);
+		$notice_date = date("H:i, ",$notice_timestamp).strftime("%e ", $notice_timestamp).substr($months[strftime("%B", $notice_timestamp)],0,3).strftime(" %Y", $notice_timestamp);
+
+		// fix links
+		$notice_body = $notice->statusnet_html;
+		
+		// notice url
+		$notice_url = str_replace($notice->user->screen_name, '',$notice->user->statusnet_profile_url).'notice/'.$notice->id;
+		
+		// construct and return notice html	
+		$the_notice = '<div class="micropost">';
+		$the_notice .= '<div class="micropost_body">'.$notice_body.'</div>';
+		$the_notice .= '<div class="micropost_date"><a href="'.$notice_url.'">'.$notice_date.'</a></div>';
+		$the_notice .= '<a href="'.$notice->user->statusnet_profile_url.'"><img class="micropost_img" src="'.$notice->user->profile_image_url.'"></a>';
+		$the_notice .= '<div class="micropost_author"><span class="fullname">'.$notice->user->name.'</span> <a href="'.$notice->user->statusnet_profile_url.'">@'.$notice->user->screen_name.'</a></div>';
+		$the_notice .= '</div>';
+		return $the_notice;
+	
+		}
 	}
 
 
-print 'ok';
-	
 ?>

@@ -26,32 +26,49 @@
  *                                                                            * 
  *----------------------------------------------------------------------------*/   
 
-// stuff
-error_reporting(E_ALL); ini_set('display_errors', '1');
-header("Content-type: text/plain; charset=utf-8");
-include "../settings.php";
-$db_link=mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error()); mysql_select_db($db_name, $db_link) or die(mysql_error()); mysql_query("SET CHARACTER SET 'utf8'");
+// PARSER FOR TUMBLR
 
-// read data and secure against sql-insert
-$widths_expl = explode(',',$_GET["widths"]);
-foreach($widths_expl as $object) {
-	$object_expl = explode('>',$object);
-	$obj_id = (int)$object_expl[0];
-	$new_obj_width = (float)$object_expl[1];
-	$time_now = microtime(true);	
+// (1) domain match
+$identify_by_domain = array(
+	'tumblr.com'
+	);
 
-	// read object data from db
-	$obj_t = mysql_query("SELECT s1.id, s1.type, s1.parent, s1.content, s1.sort_order FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.id = '$obj_id'");
-	$obj_type = mysql_result($obj_t,0,'type');
-	$obj_parent = mysql_result($obj_t,0,'parent');	
-	$obj_content = mysql_result($obj_t,0,'content');
-	$obj_sort_order = mysql_result($obj_t,0,'sort_order');		
+// (2) for unmatched URL:s, we look for signs in html source
+$identify_by_source = array(
+	);
+
+
+// ---------------------------------------------------------------
+// ---------------------------------------------------------------
+
+// PARSER
+// function must be named "parse_" + (filename - ".php")
+// 1. fetch page from URL
+// 2. print parsed HTML
+function parse_tumblr($url, $page_source) {
+		
+	// get feed source
+	$single_post_feed_source = get_source_width_curl($url.'/rss');
+	$single_post_feed_source = $single_post_feed_source["content"];
 	
-	// insert new updated row
-	mysql_query("INSERT INTO objects (id, time, type, parent, content, width, sort_order) VALUES ('$obj_id','$time_now','$obj_type','$obj_parent','$obj_content','$new_obj_width','$obj_sort_order')");
+	// parse feed
+	if(!stristr($single_post_feed_source, '</rss>')) {
+		print 'Did not recieve a valid rss feed, check your post url by adding /rss after it';
+		return false;
+		}
+		
+	$xml_parsed = simplexml_load_string($single_post_feed_source, null, LIBXML_NOCDATA);
+	$h1 = $xml_parsed->channel->item->title;
+	$title = $xml_parsed->channel->title;	
+	$content_decoded = $xml_parsed->channel->item->description;
+		
+	// wrap in article structure
+	$content = '<div class="article"><h1>'.$h1.'</h1>'.$content_decoded.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		
+
+	return $content;
+
 	}
 
 
-print 'ok';
-	
+
 ?>

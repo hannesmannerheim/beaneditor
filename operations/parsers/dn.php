@@ -26,32 +26,41 @@
  *                                                                            * 
  *----------------------------------------------------------------------------*/   
 
-// stuff
-error_reporting(E_ALL); ini_set('display_errors', '1');
-header("Content-type: text/plain; charset=utf-8");
-include "../settings.php";
-$db_link=mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error()); mysql_select_db($db_name, $db_link) or die(mysql_error()); mysql_query("SET CHARACTER SET 'utf8'");
+// PARSER FOR DN.se	
 
-// read data and secure against sql-insert
-$widths_expl = explode(',',$_GET["widths"]);
-foreach($widths_expl as $object) {
-	$object_expl = explode('>',$object);
-	$obj_id = (int)$object_expl[0];
-	$new_obj_width = (float)$object_expl[1];
-	$time_now = microtime(true);	
+// (1) domain match
+$identify_by_domain = array(
+	'dn.se'
+	);
 
-	// read object data from db
-	$obj_t = mysql_query("SELECT s1.id, s1.type, s1.parent, s1.content, s1.sort_order FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.id = '$obj_id'");
-	$obj_type = mysql_result($obj_t,0,'type');
-	$obj_parent = mysql_result($obj_t,0,'parent');	
-	$obj_content = mysql_result($obj_t,0,'content');
-	$obj_sort_order = mysql_result($obj_t,0,'sort_order');		
-	
-	// insert new updated row
-	mysql_query("INSERT INTO objects (id, time, type, parent, content, width, sort_order) VALUES ('$obj_id','$time_now','$obj_type','$obj_parent','$obj_content','$new_obj_width','$obj_sort_order')");
+// (2) for unmatched URL:s, we look for signs in html source
+$identify_by_source = array(
+	);
+
+
+// ---------------------------------------------------------------
+// ---------------------------------------------------------------
+
+// PARSER
+// function must be named "parse_" + (filename - ".php")
+// 1. fetch page from URL
+// 2. print parsed HTML
+function parse_dn($url, $page_source) {
+		
+	$html = str_get_html($page_source);
+
+	// get title
+	$title = $html->find(".columns",0)->find("h1",0)->innertext;
+	$lead = $html->find("#article-content",0)->find(".preamble",0)->innertext;	
+	$postbody = $html->find("#article-content",0)->find("#contentBody",0)->innertext;	
+		
+	// wrap in article structure
+	$content = '<div class="article"><h1>'.$title.'</h1><div class="lead">'.$lead.'</div>'.$postbody.'<address><a href="'.$url.'">DN.se :: '.$title.'</a></address></div>';		
+
+	return $content;
+
 	}
 
 
-print 'ok';
-	
+
 ?>
