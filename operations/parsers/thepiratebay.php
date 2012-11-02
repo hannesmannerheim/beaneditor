@@ -24,7 +24,7 @@
  *  You should have received a copy of the GNU Affero General Public License  *
  *  along with Beaneditor. If not, see <http://www.gnu.org/licenses/>.        *
  *                                                                            * 
- *----------------------------------------------------------------------------*/   
+ *----------------------------------------------------------------------------*/ 
 
 // PARSER FOR TPB
 

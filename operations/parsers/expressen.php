@@ -24,7 +24,7 @@
  *  You should have received a copy of the GNU Affero General Public License  *
  *  along with Beaneditor. If not, see <http://www.gnu.org/licenses/>.        *
  *                                                                            * 
- *----------------------------------------------------------------------------*/   
+ *----------------------------------------------------------------------------*/ 
 
 // PARSER FOR EXPRESSEN
 
@@ -52,7 +52,7 @@ function parse_expressen($url, $page_source) {
 	// get title
 	$title = $html->find("h1",0)->innertext;
 	$lead = $html->find(".b-text_article-preamble",0)->innertext;	
-	$postbody = $html->find(".b-article__content",0)->find(".b-text_article",1)->find("div",0)->innertext;	
+	$postbody = $html->find(".b-article__content",0)->find(".b-text_article",1)->innertext;	
 		
 	// wrap in article structure
 	$content = '<div class="article"><h1>'.$title.'</h1><div class="lead">'.$lead.'</div>'.$postbody.'<address><a href="'.$url.'">Expressen | '.$title.'</a></address></div>';		

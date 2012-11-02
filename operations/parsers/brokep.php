@@ -24,7 +24,7 @@
  *  You should have received a copy of the GNU Affero General Public License  *
  *  along with Beaneditor. If not, see <http://www.gnu.org/licenses/>.        *
  *                                                                            * 
- *----------------------------------------------------------------------------*/   
+ *----------------------------------------------------------------------------*/ 
 
 // PARSER FOR BLOG.BROKEP.COM
 
@@ -47,13 +47,25 @@ $identify_by_source = array(
 // 2. print parsed HTML
 function parse_brokep($url, $page_source) {
 
-	$start = strpos($page_source,"<link rel='shortlink' href='")+28;
-	$end = strpos($page_source,"'",$start)-$start;
-	$shortlink = substr($page_source,$start,$end);
-		
-	include 'wordpress.php';
-	return parse_wordpress($shortlink,$page_source);
+	$html = str_get_html($page_source);
+
+	// get title
+	$title_tag = $html->find("title",0);
+	$title = $title_tag->innertext;
+
+	// get h1
+	$h1_tag = $html->find("div#content",0)->find('h1',0);
+	$h1 = $h1_tag->innertext;
 	
+	// get text body
+	$html->find("p.wp-flattr-button",0)->outertext = '';
+	$postbody_tag = $html->find("div.entry",0);
+	$postbody = $postbody_tag->innertext;	
+		
+	// wrap in article structure
+	$content = '<div class="article"><h1>'.$h1.'</h1>'.$postbody.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		
+
+	return $content;
 	}
 
 

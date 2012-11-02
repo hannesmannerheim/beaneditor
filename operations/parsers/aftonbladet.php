@@ -24,7 +24,7 @@
  *  You should have received a copy of the GNU Affero General Public License  *
  *  along with Beaneditor. If not, see <http://www.gnu.org/licenses/>.        *
  *                                                                            * 
- *----------------------------------------------------------------------------*/   
+ *----------------------------------------------------------------------------*/ 
 
 // PARSER FOR AFTONBLADET.SE
 
@@ -49,7 +49,7 @@ $identify_by_source = array(
 function parse_aftonbladet($url, $page_source) {
 	
 	// can we read?
-	if(!stristr($page_source, 'abMainArticle')) {
+	if(!stristr($page_source, '<article>')) {
 		print 'We couldn\'t read this aftonbladet-article. Copy-paste the text using the HTML-button instead.';
 		return false;
 		}
@@ -62,7 +62,7 @@ function parse_aftonbladet($url, $page_source) {
 	$title = $title_tag->innertext;
 
 	// get h1
-	$h1_tag = $html->find("div#abMainArticle",0)->find('h1',0);
+	$h1_tag = $html->find("article",0)->find('h1',0);
 	$h1 = $h1_tag->innertext;
 
 	// get lead
