@@ -89,7 +89,7 @@ elseif(stristr($url_source["type"],"text/xml")
 	if(isset($function_name)) {	
 		$html = $function_name($url, $url_source["content"]);
 		if($html) {
-			$html = download_inline_images($html);
+			$html = download_inline_images($html,$url);
 			save_html($obj_id, $html);
 			}	
 		}
@@ -107,14 +107,18 @@ elseif(stristr($url_source["type"],"text/xml")
 		if(isset($function_name)) {	
 			$html = $function_name($url, $url_source["content"]);
 			if($html) {
-				$html = download_inline_images($html);
+				$html = download_inline_images($html,$url);
 				save_html($obj_id, $html);
 				}
 			}
 		else {
 			
-			// here we should have a generic parser
-			print 'me not know this content :(';
+			// last resort, fallback parser
+			$html = fallback_parser($url, $url_source["content"]);
+			if($html) {
+				$html = download_inline_images($html,$url);
+				save_html($obj_id, $html);
+				}	
 			
 			}
 	
@@ -129,8 +133,17 @@ else {
 
 
 	// download inline images
-function download_inline_images($html) {
+function download_inline_images($html, $url) {
 	$html_parsed = str_get_html($html);
+
+	// complete relative urls
+	foreach($html_parsed->find("img") as $img) {
+		if(substr($img->src,0,1) == '/') {
+			$url_parsed = parse_url($url);
+			$img->src = $url_parsed['host'].$img->src;
+			}
+		}	
+
 	function download_images($element) {
 		if($element->tag == 'img') {
 			if($element->src) {
