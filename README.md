@@ -54,7 +54,7 @@ rename the files to settings.php and .htaccess
 put .htaccess files in the folders you want to protect, probably in:
    
 	./admin/  
-	./admin/operations/
+	./operations/
    
 
 TODO

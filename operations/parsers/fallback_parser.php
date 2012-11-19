@@ -30,8 +30,28 @@
 
 function fallback_parser($url, $page_source) {
 
+	// get charset
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 1);	
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3 GTB5");
+	$c = curl_exec($ch);
+	$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+	curl_close($ch);
+	if(stristr($content_type, 'charset')) {
+		$charset = substr($content_type,strpos($content_type,'charset')+8);
+		if(strstr($charset,';')) {
+			$charset = substr($charset,0, strpos($charset,';'));			
+			}
+		}
+	else {
+		$charset = mb_detect_encoding($page_source);
+		}
+
 	// fetch through readability
-	$postfields = 'token=&extensionType=addon&extensionVersion=2.4&extensionBrowser=firefox&fromEmbed=0&legacyBookmarklet=0&url='.urlencode($url).'&doc='.urlencode($page_source).'&charset=UTF-8&read=1';
+	$postfields = 'token=&extensionType=addon&extensionVersion=2.4&extensionBrowser=firefox&fromEmbed=0&legacyBookmarklet=0&url='.urlencode($url).'&doc='.urlencode($page_source).'&charset='.$charset.'&read=1';
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, "http://www.readability.com/articles/queue");
 	curl_setopt($ch, CURLOPT_POSTFIELDS,$postfields);
@@ -50,6 +70,22 @@ function fallback_parser($url, $page_source) {
 	$body = $html->find("section.entry-content",0)->innertext;
 	$source_html = str_get_html($page_source);
 	$title = $source_html->find("title",0)->innertext;	
+	
+	// unnest img:s from p:s (to remove indent)
+	$body = str_get_html($body);
+	foreach($body->find('p') as $p) {
+		if(count($p->find('img'))==1) {
+			$orig_p = $p->outertext;
+			$img = $p->find('img',0)->outertext;
+			$p->find('img',0)->outertext = '';
+			if(strlen($p->outertext<4)) {
+				$p->outertext = $img;
+				}
+			else {
+				$p->outertext = $orig_p;
+				}
+			}
+		}
 		
 	// wrap in article structure
 	$content = '<div class="article"><h1>'.$h1.'</h1>'.$body.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		
