@@ -85,8 +85,12 @@ function render_bean($admin=false, $rss=false, $requested_base_object=false, $ne
 			$base_object_array[] = $base_id;
 			}
 		
+		// render directly if rss
+		if($rss) {
+			render_object_rss($obj_tree,$objects);						
+			}		
 		// display message if no base objects
-		if(count($base_object_array)<1) {
+		elseif(count($base_object_array)<1) {
 			print '<div id="theend" style="font-size:30px;"><img style="width:216px;" src="../img/beaneditor.png" /><br />Nothing published here yet.<br />If you are the administrator of this Beaneditor site, <br />go to <a href="'.$home_url.'/admin/">'.$home_url.'/admin/</a> to start editing.</div>';
 			}
 		// continue otherwise
@@ -118,13 +122,8 @@ function render_bean($admin=false, $rss=false, $requested_base_object=false, $ne
 			$obj_tree = $needed_base_objects_tree;			
 	
 			
-			// proceed rendering
-			if($rss) {
-				render_object_rss($obj_tree,$objects);						
-				}
-			else {
-				render_object($obj_tree,$objects,$admin,$issue,$next);						
-				}
+			// render
+			render_object($obj_tree,$objects,$admin);						
 			}
 		}	
 	}
@@ -218,8 +217,8 @@ function render_object($object_tree,$objects,$admin=false) {
 // render RSS
 function render_object_rss($object_tree,$objects) {
 	include "../settings.php";	
-	$maxnum=50;
 	$i=0;
+	$maxnum=50;
 	foreach($object_tree as $obj_id=>$obj_data) {
 			
 		// start of item
