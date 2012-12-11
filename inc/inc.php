@@ -30,14 +30,8 @@ include "../settings.php";
 $db_link=mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error()); mysql_select_db($db_name, $db_link) or die(mysql_error()); mysql_query("SET CHARACTER SET 'utf8'");
 
 // render
-function render_bean($admin=false, $rss=false) {
-
-	if(count($_GET) == 1) {
-		// we have a permalink		
-		foreach($_GET as $perma_id=>$this_var_does_noting_lol) {
-			$perma_id = (int)$perma_id;
-			}
-		}
+function render_bean($admin=false, $rss=false, $requested_base_object=false, $next=false) {
+	include "../settings.php";
 
 	// read objects from db 
 	$all_t = mysql_query("SELECT s1.id, s1.time, s1.type, s1.parent, s1.content, s1.width, s1.sort_order, s1.deleted, s1.published FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.deleted = '0' ORDER BY s1.parent");
@@ -86,21 +80,51 @@ function render_bean($admin=false, $rss=false) {
 				}
 			}	
 
-		// if we have permalink we remove all bases except perma_id
-		if($perma_id>0) {
-			foreach($obj_tree as $obj_id=>$obj_data) {
-				if($obj_id != $perma_id) {
-					unset($obj_tree[$obj_id]);
+		// make array with only base objects
+		foreach($obj_tree as $base_id=>$base_object) {
+			$base_object_array[] = $base_id;
+			}
+		
+		// display message if no base objects
+		if(count($base_object_array)<1) {
+			print '<div id="theend" style="font-size:30px;"><img style="width:216px;" src="../img/beaneditor.png" /><br />Nothing published here yet.<br />If you are the administrator of this Beaneditor site, <br />go to <a href="'.$home_url.'/admin/">'.$home_url.'/admin/</a> to start editing.</div>';
+			}
+		// continue otherwise
+		else {	
+			// show latest two base objects if front or if issue not found
+			if($requested_base_object == 'latest' || !isset($obj_tree[$requested_base_object])) {
+				$base_object_array = array_slice($base_object_array,0,2);
+				}
+			// requests to load next base object
+			elseif($next) {
+				$requested_base_object_position = array_search($requested_base_object, $base_object_array);
+				$base_object_array = array_slice($base_object_array,$requested_base_object_position+1,1);
+				if(count($base_object_array)<1) {
+					print 'The end!';
+					return;
 					}
 				}
-			}					
-		
-		// proceed rendering
-		if($rss) {
-			render_object_rss($obj_tree,$objects);						
-			}
-		else {
-			render_object($obj_tree,$objects,$admin);						
+			// permalink, only one
+			else {
+				$requested_base_object_position = array_search($requested_base_object, $base_object_array);
+				$base_object_array = array_slice($base_object_array,$requested_base_object_position,1);
+				}
+				
+	
+			// keep only the needed base object/-s
+			foreach($base_object_array as $base_object) {
+				$needed_base_objects_tree[$base_object] = $obj_tree[$base_object];
+				}
+			$obj_tree = $needed_base_objects_tree;			
+	
+			
+			// proceed rendering
+			if($rss) {
+				render_object_rss($obj_tree,$objects);						
+				}
+			else {
+				render_object($obj_tree,$objects,$admin,$issue,$next);						
+				}
 			}
 		}	
 	}
@@ -122,11 +146,14 @@ function generate_tree_cmp($a, $b) {
     if ($a == $b) { return 0; }
     return ($a < $b) ? -1 : 1;
 	}
+	
+	
+
 
 // render objects
 function render_object($object_tree,$objects,$admin=false) {
 	include "../settings.php";	
-	$numsiblings = count($object_tree);
+	
 	foreach($object_tree as $obj_id=>$obj_data) {
 		
 		if($objects[$obj_id]['type'] == 'ul') {
@@ -159,15 +186,11 @@ function render_object($object_tree,$objects,$admin=false) {
 
 			// permalinks for admin
 			if(strpos($_SERVER["REQUEST_URI"],'admin')) {
-				$front_url = substr($_SERVER["REQUEST_URI"],0,(strpos($_SERVER["REQUEST_URI"],'admin')+5)).'/?'.$obj_id;								
+				$front_url = $home_url.'/admin/'.$obj_id;								
 				}
-			// permalinks for front
-			elseif(strpos($_SERVER["REQUEST_URI"],'front')) {
-				$front_url = substr($_SERVER["REQUEST_URI"],0,(strpos($_SERVER["REQUEST_URI"],'front'))).$obj_id.'/';								
-				}
-			// permalinks for permalinks 
+			// public permalinks
 			else {
-				$front_url = $_SERVER["REQUEST_URI"];				
+				$front_url = $home_url.'/'.$obj_id.'/';
 				}
 			$header_html = '<div id="base_header'.$obj_id.'" class="base_header"'.$width_html.'>'.$header_html.'<a href="'.$front_url.'" class="pubdate">'.$pubdate.'</a></div>';
 			}			
@@ -195,41 +218,22 @@ function render_object($object_tree,$objects,$admin=false) {
 // render RSS
 function render_object_rss($object_tree,$objects) {
 	include "../settings.php";	
-	$numsiblings = count($object_tree);
+	$maxnum=50;
+	$i=0;
 	foreach($object_tree as $obj_id=>$obj_data) {
 			
 		// start of item
 		if($objects[$obj_id]['parent'] == 0) {
 			$titledate = $days[strftime("%A", $objects[$obj_id]["time"])].strftime(" %e ", $objects[$obj_id]["time"]).$months[strftime("%B", $objects[$obj_id]["time"])].strftime(" %Y", $objects[$obj_id]["time"]);
-			print '<item><title>'.$name.': '.$titledate.'</title><description><![CDATA[';
-			}			
-					
-		// print all objects with content in rows
-		$numchildren = count($obj_data['children']);
-		if($numchildren>0) {
-			render_object_rss($obj_data['children'],$objects);	
-			}
-		else {
-			print '<div style="width:500px;">';
-			if($objects[$obj_id]['content'] != '0') {
-				
-				// fix relative links
-				$img_base_url = "http://".$_SERVER['SERVER_NAME'].substr($_SERVER["REQUEST_URI"],0,(strpos($_SERVER["REQUEST_URI"],'rss')));											
-				$objects[$obj_id]['content'] = str_replace('="../','="'.$img_base_url,$objects[$obj_id]['content']);
-				
-				// print
-				print $objects[$obj_id]['content'];
-				}
-			print '</div>';
-			}
-		
-		// end of item
-		if($objects[$obj_id]['parent'] == 0) {
-			$pubdate = date('r', $objects[$obj_id]["time"]);
 			$item_url = "http://".$_SERVER['SERVER_NAME'].substr($_SERVER["REQUEST_URI"],0,(strpos($_SERVER["REQUEST_URI"],'rss'))).$obj_id.'/';											
+			$pubdate = date('r', $objects[$obj_id]["time"]);			
+			print '<item><title>'.$name.': '.$titledate.'</title><description><![CDATA[';
+			print 'New issue from '.$name.': <a href="'.$item_url.'">Click here to read it</a>';
 			print ']]></description><link>'.$item_url.'</link><guid>'.$item_url.'</guid><pubDate>'.$pubdate.'</pubDate></item>'."\n	";
-			}	
-
+			$i++;
+			}
+	
+		if($i>=$maxnum) break;
 		}
 	}
 

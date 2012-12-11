@@ -30,6 +30,16 @@
 include "../settings.php";
 include "../inc/inc.php";
 
+// permalinks
+if(count($_GET) == 1) {
+	foreach($_GET as $perma_id=>$this_var_does_noting_lol) {
+		$requested_issue = (int)$perma_id;
+		}
+	}
+else {
+	$requested_issue = 'latest';
+	}
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
@@ -39,7 +49,7 @@ include "../inc/inc.php";
 		<title><?php print $name; ?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" type="text/css" href="../css/jquery-ui-1.8.16.custom.css" />		
-		<link rel="stylesheet" type="text/css" href="../css/1.css" />
+		<link rel="stylesheet" type="text/css" href="../css/2.css" />
 		<link rel="stylesheet" type="text/css" href="../css/admin-1.css" />		
 		<link rel="shortcut icon" href="../favicon.ico" />
 	</head>
@@ -56,10 +66,11 @@ include "../inc/inc.php";
 			<img src="../img/beaneditor.png" id="beaneditor" />
 			<img src="../img/new.png" id="add_base_btn" onclick="add_base()" />
 		</div>
-		<ul id="objects_container"><li id="obj0"><?php render_bean(true) ?></li></ul>	
+		<ul id="objects_container"><li id="obj0"><?php render_bean(true,false, $requested_issue) ?></li></ul>	
 	    <script type="text/javascript" src="../js/jquery-1.6.3.min.js"></script>
 	    <script type="text/javascript" src="../js/jquery-ui-1.8.16.custom.min.js"></script>    
 	    <script type="text/javascript" src="../js/jquery.json-2.3.min.js"></script>    	    
-	    <script type="text/javascript" src="../js/1.js"></script>
+	    <script type="text/javascript" src="../js/admin-2.js"></script>
+	    <script type="text/javascript" src="../js/2.js"></script>	    
 	</body>
 </html>

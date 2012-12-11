@@ -47,7 +47,6 @@ ul#objects_container {
 	
 ul#objects_container > li {
 	padding:0 30px 0 30px;
-	margin-bottom:15px;
 	}		
 
 .object, .object_ui_highlight {
@@ -217,7 +216,43 @@ div.micropost_date {
 	font-style:italic;	
 	}		
 	
-	
+		
 .object_handle {
 	display:none;
 	}	
+	
+.nav_cover {
+	text-align:center;
+	height:0px;
+	overflow-x:hidden;
+	background-color:blue;
+	margin:0 auto;
+	}
+.nav_cover_inner {
+	z-index:9998;
+	position:absolute;
+	opacity:0.7;
+	background-color:#E6E6E6;
+	margin-top:-30px;
+	height:350px;
+	cursor:pointer;	
+	background-image:url(../img/fadetogrey.png);
+	background-repeat:repeat-x;
+	text-align:center;	
+	}
+.nav_cover_inner img {
+	width:500px;
+	margin-top:50px;
+	opacity:0.6;
+	}
+	
+#theend {
+	margin:0 auto;
+	text-align:center;
+	position:relative;
+	padding:50px;
+	font-size:200px;
+	font-family:arial;
+	font-weight:bold;
+	color:#999;
+	}

@@ -51,7 +51,7 @@ if(isset($_GET['width'])) {
 if($_GET['type'] == 'base') {
 
 	$pxwidth = $container_width/100;
-	$front_url = substr($_SERVER["REQUEST_URI"],0,strpos($_SERVER["REQUEST_URI"],'operations')).'admin/?'.$new_obj_id1;	
+	$front_url = substr($_SERVER["REQUEST_URI"],0,strpos($_SERVER["REQUEST_URI"],'operations')).'admin/'.$new_obj_id1;	
 	$pubdate = $days[strftime("%A", $time_now)].strftime(" %e ", $time_now).$months[strftime("%B", $time_now)].strftime(" %Y", $time_now);	
 
 	mysql_query("INSERT INTO objects (id, time, type, width) VALUES ('$new_obj_id1','$time_now','ul',$pxwidth)");

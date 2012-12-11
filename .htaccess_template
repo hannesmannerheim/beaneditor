@@ -4,4 +4,6 @@ RewriteBase /{user}/
 RewriteRule ^$ front/ [R]
 RewriteRule ^([0-9]+)$ $1/ [R]
 RewriteRule ^([0-9]+)/$ front/?$1 [NC]
+RewriteRule ^admin/([0-9]+)/$ admin/$1 [R]
+RewriteRule ^admin/([0-9]+)$ admin/?$1 [NC]
 </IfModule>

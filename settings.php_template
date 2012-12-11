@@ -35,6 +35,9 @@ $db_pass = "{pass}";
 // name of your beaneditor
 $name = '{name}';
 
+// url to this editor
+$home_url = 'http://aneditor.be/{name}';
+
 // default width
 $container_width = 1800;
 

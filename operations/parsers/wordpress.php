@@ -35,7 +35,8 @@ $identify_by_domain = array(
 	'.blogetery.com',
 	'.blogpeoria.com',
 	'.freeblogit.com',
-	'arbetaren.se'
+	'arbetaren.se',
+	'arsinoe.se'
 	);
 
 // secondary regexp, for unmatched URL:s, we look for proof of this cms in html source
@@ -56,7 +57,7 @@ function parse_wordpress($url, $page_source) {
 	
 	// feed url
 	$url_parsed = parse_url($url);
-	if(isset($url_parsed['query'])) { $url_parsed['query'] .= '&feed=rss2&withoutcomments=1'; }
+	if(isset($url_parsed['query'])) { $url_parsed['query'] .= '&feed=rss&withoutcomments=1'; }
 	else { $url_parsed['query'] = 'feed=rss2&withoutcomments=1'; }	
 	$single_post_feed_url = glue_url($url_parsed);
 
@@ -64,23 +65,20 @@ function parse_wordpress($url, $page_source) {
 	$single_post_feed_source = get_source_width_curl($single_post_feed_url);
 	$single_post_feed_source = $single_post_feed_source["content"];
 	
-	// parse feed
-	if(!stristr($single_post_feed_source, '</rss>')) {
-		print 'This blag doesn\'t seem to have single post rss, via feed=rss2&withoutcomments=1, plz code parser for this blag or get blad admin to support single post rss (default in wordpress)';
-		return false;
+	// fallback parser if not full content in single post feed
+	if(!stristr($single_post_feed_source, "<content:encoded>")) {
+		return fallback_parser($url, $page_source);
 		}
-		
-	$xml_parsed = simplexml_load_string($single_post_feed_source, null, LIBXML_NOCDATA);
-	$link = $xml_parsed->channel->item->link;
-	$h1 = $xml_parsed->channel->item->title;
-	$title = $xml_parsed->channel->title;	
-	$content_decoded = $xml_parsed->channel->item->xpath('content:encoded');
 
-	if(count($content_decoded)==0) {
-		print 'Could not retrieve contents, this wordpress site probably don\'t distribute their full content in its rss-feeds. Copy the text manually and save it in your Beaneditor using the HTML-tool.';		
-		return false;
-		}
+	// parse if feed has full content
 	else {
+
+		// content
+		$xml_parsed = simplexml_load_string($single_post_feed_source, null, LIBXML_NOCDATA);
+		$link = $xml_parsed->channel->item->link;
+		$h1 = $xml_parsed->channel->item->title;
+		$title = $xml_parsed->channel->title;	
+		$content_decoded = $xml_parsed->channel->item->xpath('content:encoded');
 
 		// parse content
 		$content = str_get_html($content_decoded[0]);
