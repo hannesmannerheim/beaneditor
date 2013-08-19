@@ -75,13 +75,14 @@ function parse_wordpress($url, $page_source) {
 
 		// content
 		$xml_parsed = simplexml_load_string($single_post_feed_source, null, LIBXML_NOCDATA);
+		
 		$link = $xml_parsed->channel->item->link;
 		$h1 = $xml_parsed->channel->item->title;
 		$title = $xml_parsed->channel->title;	
-		$content_decoded = $xml_parsed->channel->item->xpath('content:encoded');
+		$content_decoded = $xml_parsed->channel->item->children('content', true)->encoded;
 
 		// parse content
-		$content = str_get_html($content_decoded[0]);
+		$content = str_get_html((string)$content_decoded[0]);
 	
 		// remove facebook iframes
 		$i=0;

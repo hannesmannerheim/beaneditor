@@ -50,7 +50,7 @@ function parse_dn($url, $page_source) {
 	$html = str_get_html($page_source);
 
 	// get title
-	$title = $html->find(".columns",0)->find("h1",0)->innertext;
+	$title = $html->find("h1",0)->innertext;
 	$lead = $html->find("#article-content",0)->find(".preamble",0)->innertext;	
 	$postbody = $html->find("#article-content",0)->find("#contentBody",0)->innertext;	
 		

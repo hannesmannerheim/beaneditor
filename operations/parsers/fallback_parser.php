@@ -59,7 +59,7 @@ function fallback_parser($url, $page_source) {
 	curl_setopt($ch, CURLOPT_HEADER, 1);	
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3 GTB5");
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:23.0) Gecko/20100101 Firefox/23.0");
 	$c = curl_exec($ch);
 	curl_close($ch);
 	$readability_article_id = getcontent($c,'Location: http://www.readability.com/articles/',"\n");
@@ -67,7 +67,7 @@ function fallback_parser($url, $page_source) {
 
 	// get content
 	$h1 = $html->find("h1.entry-title",0)->innertext;
-	$body = $html->find("section.entry-content",0)->innertext;
+	$body = $html->find("div.entry-content",0)->innertext;
 	$source_html = str_get_html($page_source);
 	$title = $source_html->find("title",0)->innertext;	
 	
@@ -86,7 +86,10 @@ function fallback_parser($url, $page_source) {
 				}
 			}
 		}
-		
+	
+	// remove flattr-buttons (flattr are capitalist scum)
+	$body->find('a.FlattrButton',0)->outertext = '';
+	
 	// wrap in article structure
 	$content = '<div class="article"><h1>'.$h1.'</h1>'.$body.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		
 

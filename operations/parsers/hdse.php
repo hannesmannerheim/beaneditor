@@ -51,13 +51,13 @@ function parse_hdse($url, $page_source) {
 
 	// get content
 	$title = $html->find("title",0)->innertext;
-	$h1 = $html->find("div#article",0)->find("h1",0)->innertext;	
-	$body = $html->find("div#article",0)->find("div.body",0)->innertext;	
+	$h1 = $html->find("article",0)->find("h1",0)->innertext;	
+	$body = $html->find("article",0)->find("div.article-bd",0)->innertext;	
 	
 	$body = str_get_html($body);
 	$lead = '';
 	foreach($body->find('p') as $p) {
-		if($p->class == 'intro') {
+		if($p->class == 'sub-heading') {
 			$lead = '<div class="lead">'.$p->outertext.'</div>';
 			$p->outertext = '';
 			}
@@ -112,11 +112,6 @@ function parse_hdse($url, $page_source) {
 
 		}
 	
-
-
-	$body->find('span.key',0)->outertext = '';
-
-	$body = $body->innertext.$extras->outertext;		
 		
 	// wrap in article structure
 	$content = '<div class="article"><h1>'.$h1.'</h1>'.$lead.$body.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		

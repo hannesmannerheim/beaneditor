@@ -31,7 +31,8 @@
 // (1) sites that we know for sure is blogspot
 $identify_by_domain = array(
 	'thepiratebay.se',
-	'thepiratebay.org'
+	'thepiratebay.org',
+	'thepiratebay.sx'	
 	);
 
 // (2) for unmatched URL:s, we look for signs in html source
@@ -69,7 +70,7 @@ function parse_thepiratebay($url, $page_source) {
 		}
 
 	// if torrent
-	elseif(stristr($url,'/torrent/')) {
+	elseif(stristr($url,'/torrent/') || stristr($url,'details.php?id=')) {
 		
 		// title
 		$title_tag = $html->find("title",0);

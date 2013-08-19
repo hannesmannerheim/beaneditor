@@ -32,7 +32,19 @@
 $identify_by_domain = array(
 	'identi.ca',
 	'quitter.se',
-	'freesocial.org'
+	'freesocial.org',
+	'oracle.skilledtests.com',
+	'indy.im',
+	'status.fsf.org',
+	'micro.fragdev.com',
+	'status.pirati.ca',
+	'dent.gomertronic.com',
+	'statusnet.atari-frosch.de',
+	'u.qdnx.org',	
+	'rainbowdash.net',
+	'loadaverage.org',					
+	'federati.net',
+	'somsants.net'							
 	);
 
 // (2) secondary regexp, for unmatched URL:s, we look for proof of posterous in html source

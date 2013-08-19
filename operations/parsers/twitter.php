@@ -53,14 +53,15 @@ function parse_twitter($url, $page_source) {
 		}
 	else {
 
-		// get tweet data from twitter api
-		$tweet_id = (int)substr($url,(strpos($url,'/status/')+8));
-		$tweet = json_decode(file_get_contents('https://api.twitter.com/1/statuses/show.json?id='.$tweet_id));
-		$tweet_timestamp = strtotime($tweet->created_at);
-		$tweet_date = date("H:i, ",$tweet_timestamp).strftime("%e ", $tweet_timestamp).substr($months[strftime("%B", $tweet_timestamp)],0,3).strftime(" %Y", $tweet_timestamp);
 
-		// fix links
-		$tweet_body = twitterify($tweet->text);
+		$html = str_get_html($page_source);
+	
+		// get content
+		$tweet_date = $html->find("div.client-and-actions",0)->find('span.metadata',0)->find('span',0)->innertext;
+		$tweet_body = $html->find("p.tweet-text",0)->innertext;	
+		$tweet_user_screen_name = $html->find("a.account-group",0)->find("span.username",0)->find("b",0)->innertext;	
+		$tweet_user_name = $html->find("a.account-group",0)->find("strong.fullname",0)->innertext;	
+		$tweet_user_profile_image_url = $html->find("a.account-group",0)->find("img.avatar",0)->src;
 		
 		// translate t.co addresses
 		$html = str_get_html($tweet_body);
@@ -81,9 +82,9 @@ function parse_twitter($url, $page_source) {
 		// contruct and return tweet html	
 		$the_tweet = '<div class="micropost">';
 		$the_tweet .= '<div class="micropost_body">'.$tweet_body.'</div>';
-		$the_tweet .= '<div class="micropost_date"><a href="https://twitter.com/'.$tweet->user->screen_name.'/status/'.$tweet_id.'">'.$tweet_date.'</a></div>';
-		$the_tweet .= '<a href="http://twitter.com/'.$tweet->user->screen_name.'"><img class="micropost_img" src="'.$tweet->user->profile_image_url.'"></a>';
-		$the_tweet .= '<div class="micropost_author"><span class="fullname">'.$tweet->user->name.'</span> <a href="http://twitter.com/'.$tweet->user->screen_name.'">@'.$tweet->user->screen_name.'</a></div>';
+		$the_tweet .= '<div class="micropost_date"><a href="'.$url.'">'.$tweet_date.'</a></div>';
+		$the_tweet .= '<a href="http://twitter.com/'.$tweet_user_screen_name.'"><img class="micropost_img" src="'.$tweet_user_profile_image_url.'"></a>';
+		$the_tweet .= '<div class="micropost_author"><span class="fullname">'.$tweet_user_name.'</span> <a href="http://twitter.com/'.$tweet_user_screen_name.'">@'.$tweet_user_screen_name.'</a></div>';
 		$the_tweet .= '</div>';
 		return $the_tweet;
 	
