@@ -88,7 +88,9 @@ function fallback_parser($url, $page_source) {
 		}
 	
 	// remove flattr-buttons (flattr are capitalist scum)
-	$body->find('a.FlattrButton',0)->outertext = '';
+	foreach($body->find('a.FlattrButton') as $flattrbtn) {
+		$flattrbtn->outertext = '';
+		}
 	
 	// wrap in article structure
 	$content = '<div class="article"><h1>'.$h1.'</h1>'.$body.'<address><a href="'.$url.'">'.$title.'</a></address></div>';		
