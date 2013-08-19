@@ -2,8 +2,8 @@ Beaneditor
 ==========================================
 
 * Author:    Hannes Mannerheim (<h@nnesmannerhe.im>)
-* Last mod.: November, 2012
-* Version:   1
+* Last mod.: August, 2013
+* Version:   2
 * Website:   <http://beaneditor.org/>
 * GitHub:    <https://github.com/hannesmannerheim/beaneditor>
 
@@ -54,17 +54,16 @@ rename the files to settings.php and .htaccess
 put .htaccess files in the folders you want to protect, probably in:
    
 	./admin/  
-	./admin/operations/
+	./operations/
    
 
 TODO
 ----
 
-1. ./front/ now shows all issues, ajax-loading needed
+1. WYSIWYG-editor
 
-2. WYSIWYG-editor
+2. Simple removal tool for stuff/images/div:s/p:s in articles
 
-3. Simple removal tool for stuff/images/div:s/p:s in articles
+3. Drag-n-drop media upload
 
 4. Much more...
-
