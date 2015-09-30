@@ -50,7 +50,7 @@ Beaneditor never use UPDATE or DELETE, so don't allow those actions.
 3. Edit settings.php_template and .htaccess_template accordingly to your db, and
 rename the files to settings.php and .htaccess
 
-4. If you want to password protect the adminstration pages, use .htpasswd and 
+4. If you want to password protect the administration pages, use .htpasswd and 
 put .htaccess files in the folders you want to protect, probably in:
    
 	./admin/  
