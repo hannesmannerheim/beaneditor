@@ -26,42 +26,38 @@
  *                                                                            * 
  *----------------------------------------------------------------------------*/   
 
-include "../settings.php";
-$db_link=mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error()); mysql_select_db($db_name, $db_link) or die(mysql_error()); mysql_query("SET CHARACTER SET 'utf8'");
 
 // render
 function render_bean($admin=false, $rss=false, $requested_base_object=false, $next=false) {
+
 	include "../settings.php";
+	$db_connection = new mysqli("$db_host", "$db_user", "$db_pass", "$db_name");
+	$set_utf8_stmt = $db_connection->prepare("SET CHARACTER SET 'utf8'");
+	$set_utf8_stmt->execute();	
 
 	// read objects from db 
-	$all_t = mysql_query("SELECT s1.id, s1.time, s1.type, s1.parent, s1.content, s1.width, s1.sort_order, s1.deleted, s1.published FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.deleted = '0' ORDER BY s1.parent");
-	$n = mysql_numrows($all_t);
-	$i=0;
-	while($i<$n) {						
-		$obj_id = mysql_result($all_t,$i,'id');
-		$objects[$obj_id]["time"] = mysql_result($all_t,$i,'time');
-		$objects[$obj_id]["parent"] = mysql_result($all_t,$i,'parent');
-		$objects[$obj_id]["type"] = mysql_result($all_t,$i,'type');
-		$objects[$obj_id]["content"] = mysql_result($all_t,$i,'content');
-		if(mysql_result($all_t,$i,'content')>0) {
-			$oid_cid_array[$obj_id] = mysql_result($all_t,$i,'content');
+	$all_t = $db_connection->query("SELECT s1.id, s1.time, s1.type, s1.parent, s1.content, s1.width, s1.sort_order, s1.deleted, s1.published FROM objects s1 LEFT JOIN objects s2 ON s1.id = s2.id AND s1.time < s2.time WHERE s2.id IS NULL AND s1.deleted = '0' ORDER BY s1.parent");
+	while ($row = mysqli_fetch_assoc($all_t)) {
+		$obj_id = $row['id'];
+		$objects[$obj_id]["time"] = $row['time'];
+		$objects[$obj_id]["parent"] = $row['parent'];
+		$objects[$obj_id]["type"] = $row['type'];
+		$objects[$obj_id]["content"] = $row['content'];
+		if($row['content']>0) {
+			$oid_cid_array[$obj_id] = $row['content'];
 			}
-		$objects[$obj_id]["width"] = mysql_result($all_t,$i,'width');
-		$objects[$obj_id]["sort_order"] = mysql_result($all_t,$i,'sort_order');
-		$objects[$obj_id]["published"] = mysql_result($all_t,$i,'published');				
-		$i++;
+		$objects[$obj_id]["width"] = $row['width'];
+		$objects[$obj_id]["sort_order"] = $row['sort_order'];
+		$objects[$obj_id]["published"] = $row['published'];				
 		}
 
 	// read all needed content from db
 	if(count($oid_cid_array)>0) {
 		$SQL_IN = '('.implode(",", $oid_cid_array).')';
-		$content_t = mysql_query("SELECT id, content FROM content WHERE id IN $SQL_IN");
-		$i=0;
-		$content_t_row_num = mysql_numrows($content_t);
-		$cid_oid_array = array_flip($oid_cid_array);		
-		while($i<$content_t_row_num) {
-			$objects[$cid_oid_array[mysql_result($content_t,$i,'id')]]["content"] = mysql_result($content_t,$i,'content');
-			$i++;
+		$content_t = $db_connection->query("SELECT id, content FROM content WHERE id IN $SQL_IN");
+		$cid_oid_array = array_flip($oid_cid_array);
+		while ($row = mysqli_fetch_assoc($content_t)) {
+			$objects[$cid_oid_array[$row['id']]]['content'] = $row['content'];
 			}
 		}			
 		
@@ -276,9 +272,15 @@ function get_source_width_curl($url) {
 
 // last change in db
 function last_change_timestamp() {
-	$t = mysql_query("SELECT time FROM objects ORDER BY time DESC LIMIT 1");
-	return mysql_result($t,0);
+	include "../settings.php";
+	$db_connection = new mysqli("$db_host", "$db_user", "$db_pass", "$db_name");
+	$set_utf8_stmt = $db_connection->prepare("SET CHARACTER SET 'utf8'");
+	$set_utf8_stmt->execute();	
+	$t = $db_connection->query("SELECT time FROM objects ORDER BY time DESC LIMIT 1");
+	return $t->fetch_assoc()['time'];
 	}
+	
+	
 
 
 ?>
