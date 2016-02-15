@@ -4,7 +4,7 @@ Beaneditor
 * Author:    Hannes Mannerheim (<h@nnesmannerhe.im>)
 * Last mod.: February, 2016
 * Version:   3
-* Website:   <http://beaneditor.org/>
+* Website:   <http://beaneditor.hannesmannerhe.im>
 * GitHub:    <https://github.com/hannesmannerheim/beaneditor>
 
 Beaneditor is free software:  you can redistribute it and / or modify it
