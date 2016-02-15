@@ -21,7 +21,7 @@ Setup
 -----
 
 1. Create the MySQL tables. Beaneditor needs only two tables:
-
+```
 	CREATE TABLE 'content' (  
 	  'id' int(10) unsigned NOT NULL auto_increment,  
 	  'content' longtext collate utf8_unicode_ci NOT NULL,  
@@ -43,7 +43,7 @@ Setup
 	  KEY 'id' ('id'),  
 	  KEY 'time' ('time')  
 	) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;  
-
+```
 2. Create a MySQL user. Note, the user only needs SELECT and INSERT priviliges! 
 Beaneditor never use UPDATE or DELETE, so don't allow those actions. 
 
